@@ -1,0 +1,305 @@
+import React from 'react';
+import { 
+  View, 
+  Text, 
+  StyleSheet, 
+  ScrollView, 
+  TouchableOpacity,
+  Image,
+  Linking,
+  Platform
+} from 'react-native';
+import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
+import { 
+  MapPin, 
+  Clock, 
+  Phone, 
+  Navigation, 
+  Share2,
+  ArrowLeft
+} from 'lucide-react-native';
+import { clinics } from '@/mocks/clinics';
+import { Button } from '@/components/Button';
+import { colors } from '@/constants/colors';
+
+export default function ClinicDetailsScreen() {
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const router = useRouter();
+  
+  const clinic = clinics.find(c => c.id === id);
+  
+  if (!clinic) {
+    return (
+      <View style={styles.notFoundContainer}>
+        <Text style={styles.notFoundText}>Clinic not found</Text>
+        <Button 
+          title="Go Back" 
+          onPress={() => router.back()}
+        />
+      </View>
+    );
+  }
+  
+  const handleGetDirections = () => {
+    // In a real app, this would open maps with directions
+    alert('This would open maps with directions to the clinic');
+  };
+  
+  const handleCall = () => {
+    // In a real app, this would call the clinic
+    alert('This would call the clinic');
+  };
+  
+  const handleShare = () => {
+    // In a real app, this would share the clinic details
+    if (Platform.OS === 'web') {
+      alert('Sharing is not available on web');
+      return;
+    }
+    
+    Linking.canOpenURL('sms:').then(supported => {
+      if (supported) {
+        Linking.openURL(`sms:?body=Check out ${clinic.name} at ${clinic.address}`);
+      } else {
+        alert('SMS is not available on this device');
+      }
+    });
+  };
+  
+  return (
+    <ScrollView 
+      style={styles.container}
+      contentContainerStyle={styles.contentContainer}
+      showsVerticalScrollIndicator={false}
+    >
+      <Stack.Screen 
+        options={{
+          title: '',
+          headerLeft: () => (
+            <TouchableOpacity 
+              onPress={() => router.back()}
+              style={styles.backButton}
+            >
+              <ArrowLeft size={24} color={colors.primary} />
+            </TouchableOpacity>
+          ),
+        }} 
+      />
+      
+      <Image 
+        source={{ uri: clinic.imageUrl }} 
+        style={styles.clinicImage} 
+      />
+      
+      <View style={styles.header}>
+        <Text style={styles.clinicName}>{clinic.name}</Text>
+        <View style={styles.locationBadge}>
+          <MapPin size={14} color={colors.card} />
+          <Text style={styles.locationText}>{clinic.location}</Text>
+        </View>
+        <Text style={styles.distance}>{clinic.distance}</Text>
+      </View>
+      
+      <View style={styles.infoCard}>
+        <View style={styles.infoItem}>
+          <MapPin size={20} color={colors.primary} />
+          <Text style={styles.infoText}>{clinic.address}</Text>
+        </View>
+        
+        <View style={styles.infoItem}>
+          <Clock size={20} color={colors.primary} />
+          <Text style={styles.infoText}>{clinic.openHours}</Text>
+        </View>
+        
+        <View style={styles.infoItem}>
+          <Phone size={20} color={colors.primary} />
+          <Text style={styles.infoText}>+1 (555) 123-4567</Text>
+        </View>
+      </View>
+      
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Services</Text>
+        <View style={styles.servicesContainer}>
+          {clinic.services.map((service, index) => (
+            <View key={index} style={styles.serviceTag}>
+              <Text style={styles.serviceText}>{service}</Text>
+            </View>
+          ))}
+        </View>
+      </View>
+      
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>About</Text>
+        <Text style={styles.aboutText}>
+          {clinic.name} provides essential healthcare services to the local community in {clinic.location}. 
+          The clinic offers a range of medical services including preventive care, 
+          basic diagnostics, and treatment for common illnesses. 
+          Our team of healthcare professionals is committed to providing quality care 
+          to all patients regardless of their ability to pay.
+        </Text>
+      </View>
+      
+      <View style={styles.actionsContainer}>
+        <TouchableOpacity 
+          style={styles.actionButton}
+          onPress={handleGetDirections}
+        >
+          <Navigation size={24} color={colors.primary} />
+          <Text style={styles.actionText}>Directions</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          style={styles.actionButton}
+          onPress={handleCall}
+        >
+          <Phone size={24} color={colors.primary} />
+          <Text style={styles.actionText}>Call</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          style={styles.actionButton}
+          onPress={handleShare}
+        >
+          <Share2 size={24} color={colors.primary} />
+          <Text style={styles.actionText}>Share</Text>
+        </TouchableOpacity>
+      </View>
+      
+      <Button 
+        title="Book an Appointment" 
+        onPress={() => alert('This would allow booking an appointment at the clinic')}
+        style={styles.bookButton}
+        fullWidth
+      />
+    </ScrollView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  contentContainer: {
+    paddingBottom: 32,
+  },
+  backButton: {
+    padding: 8,
+  },
+  clinicImage: {
+    width: '100%',
+    height: 200,
+  },
+  header: {
+    padding: 16,
+    paddingBottom: 0,
+  },
+  clinicName: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: colors.text,
+    marginBottom: 8,
+  },
+  locationBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.secondary,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 16,
+    alignSelf: 'flex-start',
+    marginBottom: 8,
+  },
+  locationText: {
+    fontSize: 12,
+    color: colors.card,
+    fontWeight: '500',
+    marginLeft: 4,
+  },
+  distance: {
+    fontSize: 16,
+    color: colors.primary,
+    marginBottom: 16,
+  },
+  infoCard: {
+    margin: 16,
+    backgroundColor: colors.card,
+    borderRadius: 12,
+    padding: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  infoItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  infoText: {
+    fontSize: 14,
+    color: colors.text,
+    marginLeft: 12,
+  },
+  section: {
+    padding: 16,
+    paddingTop: 0,
+    marginBottom: 8,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: colors.text,
+    marginBottom: 12,
+  },
+  servicesContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  serviceTag: {
+    backgroundColor: colors.primary + '20',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    marginRight: 8,
+    marginBottom: 8,
+  },
+  serviceText: {
+    fontSize: 14,
+    color: colors.primary,
+  },
+  aboutText: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    lineHeight: 22,
+  },
+  actionsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    padding: 16,
+    marginBottom: 16,
+  },
+  actionButton: {
+    alignItems: 'center',
+  },
+  actionText: {
+    fontSize: 14,
+    color: colors.primary,
+    marginTop: 8,
+  },
+  bookButton: {
+    marginHorizontal: 16,
+  },
+  notFoundContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  notFoundText: {
+    fontSize: 18,
+    color: colors.textSecondary,
+    marginBottom: 16,
+  },
+});
