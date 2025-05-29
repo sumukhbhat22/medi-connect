@@ -1,0 +1,60 @@
+export interface Doctor {
+  id: string;
+  name: string;
+  specialty: string;
+  imageUrl: string;
+  rating: number;
+  availability: string;
+  price: number;
+  languages: string[];
+  location: string;
+}
+
+export interface Clinic {
+  id: string;
+  name: string;
+  address: string;
+  distance: string;
+  services: string[];
+  openHours: string;
+  imageUrl: string;
+  location: string;
+}
+
+export interface HealthTip {
+  id: string;
+  title: string;
+  description: string;
+  imageUrl: string;
+  category: string;
+}
+
+export interface Consultation {
+  id: string;
+  doctorId: string;
+  doctorName: string;
+  specialty: string;
+  date: string;
+  time: string;
+  status: 'scheduled' | 'completed' | 'cancelled';
+  type: 'video' | 'voice' | 'text';
+}
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  location: string;
+  profileImage?: string;
+  medicalHistory?: {
+    conditions: string[];
+    allergies: string[];
+    medications: string[];
+  };
+}
+
+export interface Symptom {
+  id: string;
+  name: string;
+}
