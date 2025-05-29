@@ -1,0 +1,164 @@
+import { Clinic } from '@/types';
+
+export const clinics: Clinic[] = [
+  {
+    id: '1',
+    name: 'Apollo Community Health Center',
+    address: '123 MG Road, Bangalore, Karnataka',
+    distance: '1.2 km away',
+    services: ['General Medicine', 'Vaccinations', 'Basic Lab Tests'],
+    openHours: 'Mon-Sat: 8AM-8PM',
+    imageUrl: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=300&auto=format&fit=crop',
+    location: 'Bangalore'
+  },
+  {
+    id: '2',
+    name: 'Fortis Family Care Clinic',
+    address: '456 Linking Road, Mumbai, Maharashtra',
+    distance: '2.5 km away',
+    services: ['Pediatrics', "Women's Health", 'Chronic Disease Management'],
+    openHours: 'Mon-Sun: 9AM-9PM',
+    imageUrl: 'https://images.unsplash.com/photo-1516549655669-df668a1d9930?q=80&w=300&auto=format&fit=crop',
+    location: 'Mumbai'
+  },
+  {
+    id: '3',
+    name: 'AIIMS Mobile Health Unit',
+    address: 'Chandni Chowk (Tuesdays), Lajpat Nagar (Thursdays), Delhi',
+    distance: 'Varies by location',
+    services: ['Basic Check-ups', 'Health Education', 'Medication Refills'],
+    openHours: 'Tue & Thu: 10AM-4PM',
+    imageUrl: 'https://images.unsplash.com/photo-1612776572997-76cc42e058c3?q=80&w=300&auto=format&fit=crop',
+    location: 'Delhi'
+  },
+  {
+    id: '4',
+    name: 'Narayana Mother & Child Clinic',
+    address: '789 Anna Salai, Chennai, Tamil Nadu',
+    distance: '3.7 km away',
+    services: ['Prenatal Care', 'Child Health', 'Family Planning'],
+    openHours: 'Mon-Fri: 8:30AM-6PM',
+    imageUrl: 'https://images.unsplash.com/photo-1504813184591-01572f98c85f?q=80&w=300&auto=format&fit=crop',
+    location: 'Chennai'
+  },
+  {
+    id: '5',
+    name: 'Medanta Ayurveda Center',
+    address: '45 Civil Lines, Jaipur, Rajasthan',
+    distance: '4.1 km away',
+    services: ['Ayurvedic Consultation', 'Herbal Medicine', 'Panchakarma'],
+    openHours: 'Mon-Sat: 7AM-7PM',
+    imageUrl: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?q=80&w=300&auto=format&fit=crop',
+    location: 'Jaipur'
+  },
+  {
+    id: '6',
+    name: 'Max Healthcare Polyclinic',
+    address: '22 Park Street, Kolkata, West Bengal',
+    distance: '1.8 km away',
+    services: ['Multi-specialty Care', 'Diagnostics', 'Pharmacy'],
+    openHours: 'Mon-Sun: 24 Hours',
+    imageUrl: 'https://images.unsplash.com/photo-1586773860418-d37222d8fce3?q=80&w=300&auto=format&fit=crop',
+    location: 'Kolkata'
+  },
+  {
+    id: '7',
+    name: 'Manipal Rural Health Center',
+    address: 'Village Road, Udupi, Karnataka',
+    distance: '5.3 km away',
+    services: ['Primary Care', 'Maternal Health', 'Immunization'],
+    openHours: 'Mon-Sat: 9AM-5PM',
+    imageUrl: 'https://images.unsplash.com/photo-1629909613654-28e377c37b09?q=80&w=300&auto=format&fit=crop',
+    location: 'Udupi'
+  },
+  {
+    id: '8',
+    name: 'NIMHANS Mental Health Clinic',
+    address: '33 Hosur Road, Bangalore, Karnataka',
+    distance: '2.9 km away',
+    services: ['Psychiatric Care', 'Counseling', 'Addiction Treatment'],
+    openHours: 'Mon-Fri: 9AM-4PM',
+    imageUrl: 'https://images.unsplash.com/photo-1551601651-2a8555f1a136?q=80&w=300&auto=format&fit=crop',
+    location: 'Bangalore'
+  },
+  {
+    id: '9',
+    name: 'Lilavati Hospital Outpatient Clinic',
+    address: '789 Bandra West, Mumbai, Maharashtra',
+    distance: '3.2 km away',
+    services: ['General Medicine', 'Cardiology', 'Orthopedics'],
+    openHours: 'Mon-Sat: 9AM-7PM',
+    imageUrl: 'https://images.unsplash.com/photo-1516549655669-df668a1d9930?q=80&w=300&auto=format&fit=crop',
+    location: 'Mumbai'
+  },
+  {
+    id: '10',
+    name: 'Tata Memorial Satellite Center',
+    address: '45 Parel, Mumbai, Maharashtra',
+    distance: '4.5 km away',
+    services: ['Oncology', 'Cancer Screening', 'Palliative Care'],
+    openHours: 'Mon-Fri: 8AM-6PM',
+    imageUrl: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=300&auto=format&fit=crop',
+    location: 'Mumbai'
+  },
+  {
+    id: '11',
+    name: 'Sankara Nethralaya Eye Clinic',
+    address: '18 Cathedral Road, Chennai, Tamil Nadu',
+    distance: '2.1 km away',
+    services: ['Ophthalmology', 'Eye Surgery', 'Vision Testing'],
+    openHours: 'Mon-Sat: 8:30AM-5:30PM',
+    imageUrl: 'https://images.unsplash.com/photo-1551601651-2a8555f1a136?q=80&w=300&auto=format&fit=crop',
+    location: 'Chennai'
+  },
+  {
+    id: '12',
+    name: 'Indraprastha Apollo Clinic',
+    address: '56 Sarita Vihar, Delhi',
+    distance: '3.8 km away',
+    services: ['Multi-specialty Care', 'Emergency Services', 'Diagnostics'],
+    openHours: 'Mon-Sun: 24 Hours',
+    imageUrl: 'https://images.unsplash.com/photo-1612776572997-76cc42e058c3?q=80&w=300&auto=format&fit=crop',
+    location: 'Delhi'
+  },
+  {
+    id: '13',
+    name: 'Narayana Health City Outreach',
+    address: '27 Electronic City, Bangalore, Karnataka',
+    distance: '7.2 km away',
+    services: ['Cardiology', 'Nephrology', 'Pediatrics'],
+    openHours: 'Mon-Sat: 9AM-6PM',
+    imageUrl: 'https://images.unsplash.com/photo-1504813184591-01572f98c85f?q=80&w=300&auto=format&fit=crop',
+    location: 'Bangalore'
+  },
+  {
+    id: '14',
+    name: 'Aster CMI Community Clinic',
+    address: '12 Hebbal, Bangalore, Karnataka',
+    distance: '5.6 km away',
+    services: ['Family Medicine', 'Preventive Care', 'Vaccinations'],
+    openHours: 'Mon-Sat: 8AM-8PM',
+    imageUrl: 'https://images.unsplash.com/photo-1586773860418-d37222d8fce3?q=80&w=300&auto=format&fit=crop',
+    location: 'Bangalore'
+  },
+  {
+    id: '15',
+    name: 'Yashoda Hospitals Outpatient Center',
+    address: '34 Somajiguda, Hyderabad, Telangana',
+    distance: '2.7 km away',
+    services: ['General Medicine', 'Gynecology', 'Pediatrics'],
+    openHours: 'Mon-Sat: 9AM-7PM',
+    imageUrl: 'https://images.unsplash.com/photo-1629909613654-28e377c37b09?q=80&w=300&auto=format&fit=crop',
+    location: 'Hyderabad'
+  },
+  {
+    id: '16',
+    name: 'Ruby General Hospital Clinic',
+    address: '78 EM Bypass, Kolkata, West Bengal',
+    distance: '4.3 km away',
+    services: ['Internal Medicine', 'Diagnostics', 'Physiotherapy'],
+    openHours: 'Mon-Sun: 8AM-8PM',
+    imageUrl: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?q=80&w=300&auto=format&fit=crop',
+    location: 'Kolkata'
+  }
+];

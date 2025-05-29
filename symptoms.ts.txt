@@ -1,0 +1,180 @@
+import { Doctor } from '@/types';
+
+export const doctors: Doctor[] = [
+  {
+    id: '1',
+    name: 'Dr. Priya Sharma',
+    specialty: 'General Medicine',
+    imageUrl: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=300&auto=format&fit=crop',
+    rating: 4.8,
+    availability: 'Available today',
+    price: 500,
+    languages: ['English', 'Hindi', 'Punjabi'],
+    location: 'Bangalore'
+  },
+  {
+    id: '2',
+    name: 'Dr. Rajesh Patel',
+    specialty: 'Pediatrics',
+    imageUrl: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?q=80&w=300&auto=format&fit=crop',
+    rating: 4.9,
+    availability: 'Available tomorrow',
+    price: 700,
+    languages: ['English', 'Hindi', 'Gujarati'],
+    location: 'Mumbai'
+  },
+  {
+    id: '3',
+    name: 'Dr. Meera Reddy',
+    specialty: 'Obstetrics & Gynecology',
+    imageUrl: 'https://images.unsplash.com/photo-1594824476967-48c8b964273f?q=80&w=300&auto=format&fit=crop',
+    rating: 4.7,
+    availability: 'Available today',
+    price: 800,
+    languages: ['English', 'Tamil', 'Telugu'],
+    location: 'Chennai'
+  },
+  {
+    id: '4',
+    name: 'Dr. Arjun Singh',
+    specialty: 'Cardiology',
+    imageUrl: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?q=80&w=300&auto=format&fit=crop',
+    rating: 4.6,
+    availability: 'Available in 2 days',
+    price: 1200,
+    languages: ['English', 'Hindi', 'Punjabi'],
+    location: 'Delhi'
+  },
+  {
+    id: '5',
+    name: 'Dr. Ananya Chatterjee',
+    specialty: 'Mental Health',
+    imageUrl: 'https://images.unsplash.com/photo-1651008376811-b90baee60c1f?q=80&w=300&auto=format&fit=crop',
+    rating: 4.9,
+    availability: 'Available today',
+    price: 900,
+    languages: ['English', 'Hindi', 'Bengali'],
+    location: 'Kolkata'
+  },
+  {
+    id: '6',
+    name: 'Dr. Vikram Desai',
+    specialty: 'Dermatology',
+    imageUrl: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?q=80&w=300&auto=format&fit=crop',
+    rating: 4.8,
+    availability: 'Available tomorrow',
+    price: 850,
+    languages: ['English', 'Hindi', 'Marathi', 'Gujarati'],
+    location: 'Mumbai'
+  },
+  {
+    id: '7',
+    name: 'Dr. Kavita Nair',
+    specialty: 'Ayurveda',
+    imageUrl: 'https://images.unsplash.com/photo-1559839914-17aae19cec71?q=80&w=300&auto=format&fit=crop',
+    rating: 4.7,
+    availability: 'Available today',
+    price: 600,
+    languages: ['English', 'Hindi', 'Malayalam'],
+    location: 'Kochi'
+  },
+  {
+    id: '8',
+    name: 'Dr. Sanjay Gupta',
+    specialty: 'Orthopedics',
+    imageUrl: 'https://images.unsplash.com/photo-1612531386530-97286d97c2d2?q=80&w=300&auto=format&fit=crop',
+    rating: 4.9,
+    availability: 'Available in 3 days',
+    price: 1000,
+    languages: ['English', 'Hindi'],
+    location: 'Delhi'
+  },
+  {
+    id: '9',
+    name: 'Dr. Lakshmi Rao',
+    specialty: 'General Medicine',
+    imageUrl: 'https://images.unsplash.com/photo-1594824476967-48c8b964273f?q=80&w=300&auto=format&fit=crop',
+    rating: 4.6,
+    availability: 'Available today',
+    price: 550,
+    languages: ['English', 'Telugu', 'Kannada'],
+    location: 'Bangalore'
+  },
+  {
+    id: '10',
+    name: 'Dr. Aditya Verma',
+    specialty: 'Cardiology',
+    imageUrl: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?q=80&w=300&auto=format&fit=crop',
+    rating: 4.8,
+    availability: 'Available tomorrow',
+    price: 1100,
+    languages: ['English', 'Hindi'],
+    location: 'Bangalore'
+  },
+  {
+    id: '11',
+    name: 'Dr. Neha Joshi',
+    specialty: 'Pediatrics',
+    imageUrl: 'https://images.unsplash.com/photo-1651008376811-b90baee60c1f?q=80&w=300&auto=format&fit=crop',
+    rating: 4.7,
+    availability: 'Available today',
+    price: 650,
+    languages: ['English', 'Hindi', 'Marathi'],
+    location: 'Pune'
+  },
+  {
+    id: '12',
+    name: 'Dr. Rahul Mehta',
+    specialty: 'Dermatology',
+    imageUrl: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?q=80&w=300&auto=format&fit=crop',
+    rating: 4.9,
+    availability: 'Available in 2 days',
+    price: 900,
+    languages: ['English', 'Hindi', 'Gujarati'],
+    location: 'Ahmedabad'
+  },
+  {
+    id: '13',
+    name: 'Dr. Divya Krishnan',
+    specialty: 'Mental Health',
+    imageUrl: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=300&auto=format&fit=crop',
+    rating: 4.8,
+    availability: 'Available today',
+    price: 850,
+    languages: ['English', 'Tamil', 'Malayalam'],
+    location: 'Chennai'
+  },
+  {
+    id: '14',
+    name: 'Dr. Suresh Kumar',
+    specialty: 'Orthopedics',
+    imageUrl: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?q=80&w=300&auto=format&fit=crop',
+    rating: 4.6,
+    availability: 'Available tomorrow',
+    price: 950,
+    languages: ['English', 'Hindi', 'Tamil'],
+    location: 'Hyderabad'
+  },
+  {
+    id: '15',
+    name: 'Dr. Anjali Saxena',
+    specialty: 'Obstetrics & Gynecology',
+    imageUrl: 'https://images.unsplash.com/photo-1559839914-17aae19cec71?q=80&w=300&auto=format&fit=crop',
+    rating: 4.9,
+    availability: 'Available today',
+    price: 750,
+    languages: ['English', 'Hindi'],
+    location: 'Jaipur'
+  },
+  {
+    id: '16',
+    name: 'Dr. Manoj Tiwari',
+    specialty: 'Ayurveda',
+    imageUrl: 'https://images.unsplash.com/photo-1612531386530-97286d97c2d2?q=80&w=300&auto=format&fit=crop',
+    rating: 4.7,
+    availability: 'Available in 3 days',
+    price: 600,
+    languages: ['English', 'Hindi', 'Bengali'],
+    location: 'Kolkata'
+  }
+];
