@@ -1,0 +1,468 @@
+import React, { useState } from 'react';
+import { 
+  View, 
+  Text, 
+  StyleSheet, 
+  ScrollView, 
+  TouchableOpacity,
+  Alert
+} from 'react-native';
+import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
+import { 
+  Calendar, 
+  Clock, 
+  Video, 
+  Phone, 
+  MessageSquare,
+  CreditCard,
+  Wallet
+} from 'lucide-react-native';
+import { doctors } from '@/mocks/doctors';
+import { Button } from '@/components/Button';
+import { colors } from '@/constants/colors';
+import { useUserStore } from '@/store/user-store';
+
+export default function BookConsultationScreen() {
+  const { doctorId, type = 'video' } = useLocalSearchParams<{ doctorId: string, type: string }>();
+  const router = useRouter();
+  const addConsultation = useUserStore(state => state.addConsultation);
+  
+  const doctor = doctors.find(d => d.id === doctorId);
+  
+  if (!doctor) {
+    return (
+      <View style={styles.notFoundContainer}>
+        <Text style={styles.notFoundText}>Doctor not found</Text>
+        <Button 
+          title="Go Back" 
+          onPress={() => router.back()}
+        />
+      </View>
+    );
+  }
+  
+  const consultationType = type as 'video' | 'voice' | 'text';
+  
+  // Available dates (next 7 days)
+  const dates = Array.from({ length: 7 }, (_, i) => {
+    const date = new Date();
+    date.setDate(date.getDate() + i);
+    return date;
+  });
+  
+  // Available time slots
+  const timeSlots = [
+    '9:00 AM', '10:00 AM', '11:00 AM', 
+    '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM'
+  ];
+  
+  // Payment methods
+  const paymentMethods = [
+    { id: 'card', name: 'Credit/Debit Card', icon: <CreditCard size={24} color={colors.text} /> },
+    { id: 'wallet', name: 'UPI/Mobile Wallet', icon: <Wallet size={24} color={colors.text} /> },
+  ];
+  
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedTime, setSelectedTime] = useState<string | null>(null);
+  const [selectedPayment, setSelectedPayment] = useState<string | null>(null);
+  
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString('en-US', { 
+      weekday: 'short', 
+      month: 'short', 
+      day: 'numeric' 
+    });
+  };
+  
+  const handleBookConsultation = () => {
+    if (!selectedDate || !selectedTime || !selectedPayment) {
+      Alert.alert('Error', 'Please select all required fields');
+      return;
+    }
+    
+    // Generate a unique ID
+    const consultationId = Date.now().toString();
+    
+    // Add the consultation to the store
+    addConsultation({
+      id: consultationId,
+      doctorId: doctor.id,
+      doctorName: doctor.name,
+      specialty: doctor.specialty,
+      date: formatDate(selectedDate),
+      time: selectedTime,
+      status: 'scheduled',
+      type: consultationType,
+    });
+    
+    // Show success message
+    Alert.alert(
+      'Consultation Booked',
+      `Your consultation with ${doctor.name} has been scheduled for ${formatDate(selectedDate)} at ${selectedTime}.`,
+      [
+        {
+          text: 'OK',
+          onPress: () => router.push('/'),
+        },
+      ]
+    );
+  };
+  
+  const getConsultationIcon = () => {
+    switch (consultationType) {
+      case 'video':
+        return <Video size={24} color={colors.primary} />;
+      case 'voice':
+        return <Phone size={24} color={colors.primary} />;
+      case 'text':
+        return <MessageSquare size={24} color={colors.primary} />;
+      default:
+        return <Video size={24} color={colors.primary} />;
+    }
+  };
+  
+  return (
+    <ScrollView 
+      style={styles.container}
+      contentContainerStyle={styles.contentContainer}
+      showsVerticalScrollIndicator={false}
+    >
+      <Stack.Screen 
+        options={{
+          title: 'Book Consultation',
+        }} 
+      />
+      
+      <View style={styles.doctorInfo}>
+        <Text style={styles.doctorName}>{doctor.name}</Text>
+        <Text style={styles.doctorSpecialty}>{doctor.specialty}</Text>
+      </View>
+      
+      <View style={styles.consultationTypeContainer}>
+        {getConsultationIcon()}
+        <Text style={styles.consultationTypeText}>
+          {consultationType.charAt(0).toUpperCase() + consultationType.slice(1)} Consultation
+        </Text>
+      </View>
+      
+      <View style={styles.section}>
+        <View style={styles.sectionHeader}>
+          <Calendar size={20} color={colors.primary} />
+          <Text style={styles.sectionTitle}>Select Date</Text>
+        </View>
+        
+        <ScrollView 
+          horizontal 
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.datesContainer}
+        >
+          {dates.map((date, index) => (
+            <TouchableOpacity 
+              key={index}
+              style={[
+                styles.dateItem,
+                selectedDate && date.toDateString() === selectedDate.toDateString() && styles.selectedItem
+              ]}
+              onPress={() => setSelectedDate(date)}
+            >
+              <Text style={[
+                styles.dateDay,
+                selectedDate && date.toDateString() === selectedDate.toDateString() && styles.selectedItemText
+              ]}>
+                {date.toLocaleDateString('en-US', { weekday: 'short' })}
+              </Text>
+              <Text style={[
+                styles.dateNumber,
+                selectedDate && date.toDateString() === selectedDate.toDateString() && styles.selectedItemText
+              ]}>
+                {date.getDate()}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </View>
+      
+      <View style={styles.section}>
+        <View style={styles.sectionHeader}>
+          <Clock size={20} color={colors.primary} />
+          <Text style={styles.sectionTitle}>Select Time</Text>
+        </View>
+        
+        <View style={styles.timeContainer}>
+          {timeSlots.map((time, index) => (
+            <TouchableOpacity 
+              key={index}
+              style={[
+                styles.timeItem,
+                selectedTime === time && styles.selectedItem
+              ]}
+              onPress={() => setSelectedTime(time)}
+            >
+              <Text style={[
+                styles.timeText,
+                selectedTime === time && styles.selectedItemText
+              ]}>
+                {time}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </View>
+      
+      <View style={styles.section}>
+        <View style={styles.sectionHeader}>
+          <CreditCard size={20} color={colors.primary} />
+          <Text style={styles.sectionTitle}>Payment Method</Text>
+        </View>
+        
+        {paymentMethods.map((method) => (
+          <TouchableOpacity 
+            key={method.id}
+            style={[
+              styles.paymentItem,
+              selectedPayment === method.id && styles.selectedPaymentItem
+            ]}
+            onPress={() => setSelectedPayment(method.id)}
+          >
+            {method.icon}
+            <Text style={styles.paymentText}>{method.name}</Text>
+            <View style={[
+              styles.paymentRadio,
+              selectedPayment === method.id && styles.selectedPaymentRadio
+            ]}>
+              {selectedPayment === method.id && (
+                <View style={styles.paymentRadioInner} />
+              )}
+            </View>
+          </TouchableOpacity>
+        ))}
+      </View>
+      
+      <View style={styles.summaryContainer}>
+        <Text style={styles.summaryTitle}>Consultation Summary</Text>
+        
+        <View style={styles.summaryRow}>
+          <Text style={styles.summaryLabel}>Doctor</Text>
+          <Text style={styles.summaryValue}>{doctor.name}</Text>
+        </View>
+        
+        <View style={styles.summaryRow}>
+          <Text style={styles.summaryLabel}>Consultation Type</Text>
+          <Text style={styles.summaryValue}>
+            {consultationType.charAt(0).toUpperCase() + consultationType.slice(1)}
+          </Text>
+        </View>
+        
+        <View style={styles.summaryRow}>
+          <Text style={styles.summaryLabel}>Date & Time</Text>
+          <Text style={styles.summaryValue}>
+            {selectedDate ? formatDate(selectedDate) : 'Not selected'} {selectedTime ? `at ${selectedTime}` : ''}
+          </Text>
+        </View>
+        
+        <View style={styles.divider} />
+        
+        <View style={styles.summaryRow}>
+          <Text style={styles.summaryLabel}>Consultation Fee</Text>
+          <Text style={styles.summaryPrice}>₹{doctor.price}</Text>
+        </View>
+      </View>
+      
+      <Button 
+        title="Confirm Booking" 
+        onPress={handleBookConsultation}
+        disabled={!selectedDate || !selectedTime || !selectedPayment}
+        style={styles.confirmButton}
+        fullWidth
+      />
+    </ScrollView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  contentContainer: {
+    padding: 16,
+    paddingBottom: 32,
+  },
+  doctorInfo: {
+    marginBottom: 16,
+  },
+  doctorName: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: colors.text,
+    marginBottom: 4,
+  },
+  doctorSpecialty: {
+    fontSize: 16,
+    color: colors.textSecondary,
+  },
+  consultationTypeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.primary + '10',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 24,
+  },
+  consultationTypeText: {
+    fontSize: 16,
+    color: colors.primary,
+    fontWeight: '500',
+    marginLeft: 12,
+  },
+  section: {
+    marginBottom: 24,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: colors.text,
+    marginLeft: 8,
+  },
+  datesContainer: {
+    paddingBottom: 8,
+  },
+  dateItem: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 70,
+    height: 80,
+    borderRadius: 12,
+    backgroundColor: colors.card,
+    marginRight: 12,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  selectedItem: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  dateDay: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    marginBottom: 4,
+  },
+  dateNumber: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  selectedItemText: {
+    color: colors.card,
+  },
+  timeContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  timeItem: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 12,
+    backgroundColor: colors.card,
+    marginRight: 12,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  timeText: {
+    fontSize: 14,
+    color: colors.text,
+  },
+  paymentItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.card,
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  selectedPaymentItem: {
+    borderColor: colors.primary,
+  },
+  paymentText: {
+    flex: 1,
+    fontSize: 16,
+    color: colors.text,
+    marginLeft: 12,
+  },
+  paymentRadio: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: colors.border,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  selectedPaymentRadio: {
+    borderColor: colors.primary,
+  },
+  paymentRadioInner: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: colors.primary,
+  },
+  summaryContainer: {
+    backgroundColor: colors.card,
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 24,
+  },
+  summaryTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: colors.text,
+    marginBottom: 16,
+  },
+  summaryRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
+  summaryLabel: {
+    fontSize: 14,
+    color: colors.textSecondary,
+  },
+  summaryValue: {
+    fontSize: 14,
+    color: colors.text,
+    fontWeight: '500',
+  },
+  summaryPrice: {
+    fontSize: 18,
+    color: colors.primary,
+    fontWeight: '700',
+  },
+  divider: {
+    height: 1,
+    backgroundColor: colors.border,
+    marginVertical: 12,
+  },
+  confirmButton: {
+    marginTop: 8,
+  },
+  notFoundContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  notFoundText: {
+    fontSize: 18,
+    color: colors.textSecondary,
+    marginBottom: 16,
+  },
+});
