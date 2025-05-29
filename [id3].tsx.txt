@@ -1,0 +1,264 @@
+import React from 'react';
+import { 
+  View, 
+  Text, 
+  StyleSheet, 
+  ScrollView, 
+  TouchableOpacity,
+  Image,
+  Share,
+  Platform
+} from 'react-native';
+import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
+import { ArrowLeft, Share2 } from 'lucide-react-native';
+import { healthTips } from '@/mocks/health-tips';
+import { Button } from '@/components/Button';
+import { colors } from '@/constants/colors';
+
+export default function HealthTipDetailsScreen() {
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const router = useRouter();
+  
+  const tip = healthTips.find(t => t.id === id);
+  
+  if (!tip) {
+    return (
+      <View style={styles.notFoundContainer}>
+        <Text style={styles.notFoundText}>Health tip not found</Text>
+        <Button 
+          title="Go Back" 
+          onPress={() => router.back()}
+        />
+      </View>
+    );
+  }
+  
+  // Mock full content for the health tip
+  const fullContent = {
+    introduction: `${tip.description} This is important information that can help improve your health and wellbeing.`,
+    sections: [
+      {
+        title: 'Why It Matters',
+        content: `Understanding ${tip.title.toLowerCase()} is crucial for maintaining good health. Many people in underserved communities lack access to this basic health information.`
+      },
+      {
+        title: 'Key Points',
+        content: 'Here are some important points to remember:\n\n• Start with small changes to your daily routine\n• Consistency is more important than perfection\n• Seek help from community health workers if needed\n• Share this knowledge with your family and friends'
+      },
+      {
+        title: 'Practical Steps',
+        content: 'Follow these simple steps to improve your health:\n\n1. Make a plan that works for your situation\n2. Use available resources in your community\n3. Track your progress over time\n4. Celebrate small victories along the way'
+      }
+    ],
+    conclusion: 'Remember that small changes can lead to significant improvements in your health over time. If you have questions, consult with a healthcare professional.'
+  };
+  
+  const handleShare = async () => {
+    if (Platform.OS === 'web') {
+      alert('Sharing is not available on web');
+      return;
+    }
+    
+    try {
+      await Share.share({
+        message: `Check out this health tip: ${tip.title} - ${tip.description}`,
+        title: 'Health Tip from MediConnect',
+      });
+    } catch (error) {
+      console.log('Error sharing:', error);
+    }
+  };
+  
+  return (
+    <ScrollView 
+      style={styles.container}
+      contentContainerStyle={styles.contentContainer}
+      showsVerticalScrollIndicator={false}
+    >
+      <Stack.Screen 
+        options={{
+          title: '',
+          headerLeft: () => (
+            <TouchableOpacity 
+              onPress={() => router.back()}
+              style={styles.backButton}
+            >
+              <ArrowLeft size={24} color={colors.primary} />
+            </TouchableOpacity>
+          ),
+          headerRight: () => (
+            <TouchableOpacity 
+              onPress={handleShare}
+              style={styles.shareButton}
+            >
+              <Share2 size={24} color={colors.primary} />
+            </TouchableOpacity>
+          ),
+        }} 
+      />
+      
+      <Image 
+        source={{ uri: tip.imageUrl }} 
+        style={styles.image} 
+      />
+      
+      <View style={styles.content}>
+        <View style={styles.header}>
+          <View style={styles.categoryContainer}>
+            <Text style={styles.category}>{tip.category}</Text>
+          </View>
+          <Text style={styles.title}>{tip.title}</Text>
+        </View>
+        
+        <Text style={styles.introduction}>{fullContent.introduction}</Text>
+        
+        {fullContent.sections.map((section, index) => (
+          <View key={index} style={styles.section}>
+            <Text style={styles.sectionTitle}>{section.title}</Text>
+            <Text style={styles.sectionContent}>{section.content}</Text>
+          </View>
+        ))}
+        
+        <Text style={styles.conclusion}>{fullContent.conclusion}</Text>
+        
+        <View style={styles.relatedContainer}>
+          <Text style={styles.relatedTitle}>Related Health Tips</Text>
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.relatedTips}
+          >
+            {healthTips
+              .filter(t => t.category === tip.category && t.id !== tip.id)
+              .slice(0, 3)
+              .map((relatedTip) => (
+                <TouchableOpacity 
+                  key={relatedTip.id}
+                  style={styles.relatedTip}
+                  onPress={() => router.push(`/health-tip/${relatedTip.id}`)}
+                >
+                  <Image 
+                    source={{ uri: relatedTip.imageUrl }} 
+                    style={styles.relatedImage} 
+                  />
+                  <Text style={styles.relatedTipTitle}>{relatedTip.title}</Text>
+                </TouchableOpacity>
+              ))}
+          </ScrollView>
+        </View>
+      </View>
+    </ScrollView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  contentContainer: {
+    paddingBottom: 32,
+  },
+  backButton: {
+    padding: 8,
+  },
+  shareButton: {
+    padding: 8,
+  },
+  image: {
+    width: '100%',
+    height: 200,
+  },
+  content: {
+    padding: 16,
+  },
+  header: {
+    marginBottom: 16,
+  },
+  categoryContainer: {
+    backgroundColor: colors.primary,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    alignSelf: 'flex-start',
+    marginBottom: 8,
+  },
+  category: {
+    fontSize: 14,
+    color: colors.card,
+    fontWeight: '500',
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  introduction: {
+    fontSize: 16,
+    color: colors.text,
+    lineHeight: 24,
+    marginBottom: 24,
+  },
+  section: {
+    marginBottom: 24,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: colors.text,
+    marginBottom: 12,
+  },
+  sectionContent: {
+    fontSize: 16,
+    color: colors.textSecondary,
+    lineHeight: 24,
+  },
+  conclusion: {
+    fontSize: 16,
+    color: colors.text,
+    fontStyle: 'italic',
+    lineHeight: 24,
+    marginBottom: 24,
+    padding: 16,
+    backgroundColor: colors.primary + '10',
+    borderRadius: 8,
+  },
+  relatedContainer: {
+    marginTop: 16,
+  },
+  relatedTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: colors.text,
+    marginBottom: 12,
+  },
+  relatedTips: {
+    paddingRight: 16,
+  },
+  relatedTip: {
+    width: 160,
+    marginRight: 12,
+  },
+  relatedImage: {
+    width: '100%',
+    height: 100,
+    borderRadius: 8,
+    marginBottom: 8,
+  },
+  relatedTipTitle: {
+    fontSize: 14,
+    color: colors.text,
+    fontWeight: '500',
+  },
+  notFoundContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  notFoundText: {
+    fontSize: 18,
+    color: colors.textSecondary,
+    marginBottom: 16,
+  },
+});
