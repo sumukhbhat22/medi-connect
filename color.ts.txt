@@ -1,0 +1,14 @@
+export const colors = {
+  primary: "#4A90E2", // Medical blue - primary actions
+  secondary: "#50C878", // Mint green - secondary elements
+  accent: "#FF7E5F", // Coral - accents and highlights
+  background: "#F9FBFC", // Light background
+  card: "#FFFFFF", // Card background
+  text: "#333333", // Primary text
+  textSecondary: "#6B7280", // Secondary text
+  border: "#E5E7EB", // Border color
+  success: "#34D399", // Success states
+  error: "#EF4444", // Error states
+  warning: "#F59E0B", // Warning states
+  info: "#3B82F6", // Info states
+};
