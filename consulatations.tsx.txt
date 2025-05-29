@@ -1,0 +1,277 @@
+import React, { useState } from 'react';
+import { 
+  View, 
+  Text, 
+  StyleSheet, 
+  ScrollView, 
+  TouchableOpacity,
+  FlatList
+} from 'react-native';
+import { useRouter } from 'expo-router';
+import { Filter, MapPin } from 'lucide-react-native';
+import { doctors } from '@/mocks/doctors';
+import { DoctorCard } from '@/components/DoctorCard';
+import { SearchBar } from '@/components/SearchBar';
+import { colors } from '@/constants/colors';
+
+export default function ConsultationsScreen() {
+  const router = useRouter();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedSpecialty, setSelectedSpecialty] = useState<string | null>(null);
+  const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
+  
+  const specialties = Array.from(new Set(doctors.map(doctor => doctor.specialty)));
+  const locations = Array.from(new Set(doctors.map(doctor => doctor.location))).sort();
+  
+  const filteredDoctors = doctors.filter(doctor => {
+    const matchesSearch = doctor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         doctor.specialty.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         doctor.location.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSpecialty = selectedSpecialty ? doctor.specialty === selectedSpecialty : true;
+    const matchesLocation = selectedLocation ? doctor.location === selectedLocation : true;
+    
+    return matchesSearch && matchesSpecialty && matchesLocation;
+  });
+  
+  const navigateToDoctor = (doctorId: string) => {
+    router.push(`/doctor/${doctorId}`);
+  };
+  
+  return (
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.title}>Find a Doctor</Text>
+        <Text style={styles.subtitle}>
+          Connect with healthcare professionals for consultations
+        </Text>
+      </View>
+      
+      <SearchBar 
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+        placeholder="Search doctors, specialties, or locations"
+      />
+      
+      <View style={styles.filtersContainer}>
+        <ScrollView 
+          horizontal 
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.filters}
+        >
+          <TouchableOpacity 
+            style={[
+              styles.filterChip,
+              selectedSpecialty === null && selectedLocation === null && styles.activeFilterChip
+            ]}
+            onPress={() => {
+              setSelectedSpecialty(null);
+              setSelectedLocation(null);
+            }}
+          >
+            <Text style={[
+              styles.filterText,
+              selectedSpecialty === null && selectedLocation === null && styles.activeFilterText
+            ]}>
+              All
+            </Text>
+          </TouchableOpacity>
+          
+          {specialties.map((specialty, index) => (
+            <TouchableOpacity 
+              key={`specialty-${index}`}
+              style={[
+                styles.filterChip,
+                selectedSpecialty === specialty && styles.activeFilterChip
+              ]}
+              onPress={() => {
+                setSelectedSpecialty(specialty);
+                setSelectedLocation(null);
+              }}
+            >
+              <Text style={[
+                styles.filterText,
+                selectedSpecialty === specialty && styles.activeFilterText
+              ]}>
+                {specialty}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+        
+        <TouchableOpacity 
+          style={styles.filterButton}
+          onPress={() => {
+            // In a real app, this would open a more detailed filter modal
+            alert('This would open advanced filters');
+          }}
+        >
+          <Filter size={20} color={colors.text} />
+        </TouchableOpacity>
+      </View>
+      
+      {/* Location filters */}
+      <View style={styles.locationFiltersContainer}>
+        <View style={styles.locationHeader}>
+          <MapPin size={16} color={colors.primary} />
+          <Text style={styles.locationTitle}>Locations</Text>
+        </View>
+        <ScrollView 
+          horizontal 
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.locationFilters}
+        >
+          {locations.map((location, index) => (
+            <TouchableOpacity 
+              key={`location-${index}`}
+              style={[
+                styles.locationChip,
+                selectedLocation === location && styles.activeLocationChip
+              ]}
+              onPress={() => {
+                setSelectedLocation(location === selectedLocation ? null : location);
+              }}
+            >
+              <Text style={[
+                styles.locationText,
+                selectedLocation === location && styles.activeLocationText
+              ]}>
+                {location}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </View>
+      
+      <FlatList
+        data={filteredDoctors}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <DoctorCard 
+            doctor={item} 
+            onPress={() => navigateToDoctor(item.id)}
+          />
+        )}
+        contentContainerStyle={styles.doctorsList}
+        showsVerticalScrollIndicator={false}
+        ListEmptyComponent={
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>
+              No doctors found matching your criteria
+            </Text>
+          </View>
+        }
+      />
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.background,
+    padding: 16,
+  },
+  header: {
+    marginBottom: 16,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: colors.text,
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: colors.textSecondary,
+  },
+  filtersContainer: {
+    flexDirection: 'row',
+    marginBottom: 16,
+    alignItems: 'center',
+  },
+  filters: {
+    paddingRight: 8,
+  },
+  filterChip: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: colors.card,
+    marginRight: 8,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  activeFilterChip: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  filterText: {
+    fontSize: 14,
+    color: colors.text,
+  },
+  activeFilterText: {
+    color: colors.card,
+    fontWeight: '500',
+  },
+  filterButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: colors.card,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  locationFiltersContainer: {
+    marginBottom: 16,
+  },
+  locationHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  locationTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.text,
+    marginLeft: 6,
+  },
+  locationFilters: {
+    paddingRight: 8,
+  },
+  locationChip: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    backgroundColor: colors.card,
+    marginRight: 8,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  activeLocationChip: {
+    backgroundColor: colors.secondary,
+    borderColor: colors.secondary,
+  },
+  locationText: {
+    fontSize: 12,
+    color: colors.text,
+  },
+  activeLocationText: {
+    color: colors.card,
+    fontWeight: '500',
+  },
+  doctorsList: {
+    paddingBottom: 20,
+  },
+  emptyContainer: {
+    padding: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyText: {
+    fontSize: 16,
+    color: colors.textSecondary,
+    textAlign: 'center',
+  },
+});

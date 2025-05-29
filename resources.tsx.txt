@@ -1,0 +1,289 @@
+import React, { useState } from 'react';
+import { 
+  View, 
+  Text, 
+  StyleSheet, 
+  FlatList,
+  TouchableOpacity,
+  ScrollView
+} from 'react-native';
+import { useRouter } from 'expo-router';
+import { MapPin, Filter } from 'lucide-react-native';
+import { clinics } from '@/mocks/clinics';
+import { ClinicCard } from '@/components/ClinicCard';
+import { SearchBar } from '@/components/SearchBar';
+import { colors } from '@/constants/colors';
+
+export default function ResourcesScreen() {
+  const router = useRouter();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedService, setSelectedService] = useState<string | null>(null);
+  const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
+  
+  // List of Indian cities for location selection
+  const locations = Array.from(new Set(clinics.map(clinic => clinic.location))).sort();
+  
+  // Extract unique services from all clinics
+  const allServices = clinics.reduce((services, clinic) => {
+    clinic.services.forEach(service => services.add(service));
+    return services;
+  }, new Set<string>());
+  
+  const services = Array.from(allServices);
+  
+  const filteredClinics = clinics.filter(clinic => {
+    const matchesSearch = clinic.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         clinic.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         clinic.location.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesService = selectedService 
+      ? clinic.services.some(service => service === selectedService)
+      : true;
+    const matchesLocation = selectedLocation
+      ? clinic.location === selectedLocation
+      : true;
+    
+    return matchesSearch && matchesService && matchesLocation;
+  });
+  
+  const navigateToClinic = (clinicId: string) => {
+    router.push(`/clinic/${clinicId}`);
+  };
+  
+  return (
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.title}>Healthcare Resources</Text>
+        <Text style={styles.subtitle}>
+          Find clinics, pharmacies, and healthcare services near you
+        </Text>
+      </View>
+      
+      <SearchBar 
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+        placeholder="Search clinics, services, or locations"
+      />
+      
+      <View style={styles.locationContainer}>
+        <MapPin size={20} color={colors.primary} />
+        <Text style={styles.locationText}>
+          {selectedLocation ? `Showing results in ${selectedLocation}` : 'All Locations'}
+        </Text>
+        <TouchableOpacity onPress={() => {
+          setSelectedLocation(null);
+        }}>
+          <Text style={styles.changeText}>
+            {selectedLocation ? 'Clear' : 'Select Location'}
+          </Text>
+        </TouchableOpacity>
+      </View>
+      
+      {/* Location filters */}
+      <ScrollView 
+        horizontal 
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.locationFilters}
+      >
+        {locations.map((location, index) => (
+          <TouchableOpacity 
+            key={`location-${index}`}
+            style={[
+              styles.locationChip,
+              selectedLocation === location && styles.activeLocationChip
+            ]}
+            onPress={() => {
+              setSelectedLocation(location === selectedLocation ? null : location);
+            }}
+          >
+            <Text style={[
+              styles.locationChipText,
+              selectedLocation === location && styles.activeLocationChipText
+            ]}>
+              {location}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+      
+      <View style={styles.filtersContainer}>
+        <FlatList
+          horizontal
+          data={['All', ...services]}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={({ item }) => (
+            <TouchableOpacity 
+              style={[
+                styles.filterChip,
+                (item === 'All' && selectedService === null) || 
+                (item !== 'All' && selectedService === item) 
+                  ? styles.activeFilterChip 
+                  : null
+              ]}
+              onPress={() => setSelectedService(item === 'All' ? null : item)}
+            >
+              <Text style={[
+                styles.filterText,
+                (item === 'All' && selectedService === null) || 
+                (item !== 'All' && selectedService === item) 
+                  ? styles.activeFilterText 
+                  : null
+              ]}>
+                {item}
+              </Text>
+            </TouchableOpacity>
+          )}
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.filters}
+        />
+        
+        <TouchableOpacity 
+          style={styles.filterButton}
+          onPress={() => {
+            // In a real app, this would open a more detailed filter modal
+            alert('This would open advanced filters');
+          }}
+        >
+          <Filter size={20} color={colors.text} />
+        </TouchableOpacity>
+      </View>
+      
+      <FlatList
+        data={filteredClinics}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <ClinicCard 
+            clinic={item} 
+            onPress={() => navigateToClinic(item.id)}
+          />
+        )}
+        contentContainerStyle={styles.clinicsList}
+        showsVerticalScrollIndicator={false}
+        ListEmptyComponent={
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>
+              No healthcare resources found matching your criteria
+            </Text>
+          </View>
+        }
+      />
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.background,
+    padding: 16,
+  },
+  header: {
+    marginBottom: 16,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: colors.text,
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: colors.textSecondary,
+  },
+  locationContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.primary + '10',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+    marginBottom: 12,
+  },
+  locationText: {
+    flex: 1,
+    fontSize: 14,
+    color: colors.text,
+    marginLeft: 8,
+  },
+  changeText: {
+    fontSize: 14,
+    color: colors.primary,
+    fontWeight: '500',
+  },
+  locationFilters: {
+    flexDirection: 'row',
+    marginBottom: 12,
+  },
+  locationChip: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    backgroundColor: colors.card,
+    marginRight: 8,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  activeLocationChip: {
+    backgroundColor: colors.secondary,
+    borderColor: colors.secondary,
+  },
+  locationChipText: {
+    fontSize: 12,
+    color: colors.text,
+  },
+  activeLocationChipText: {
+    color: colors.card,
+    fontWeight: '500',
+  },
+  filtersContainer: {
+    flexDirection: 'row',
+    marginBottom: 16,
+    alignItems: 'center',
+  },
+  filters: {
+    paddingRight: 8,
+  },
+  filterChip: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: colors.card,
+    marginRight: 8,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  activeFilterChip: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  filterText: {
+    fontSize: 14,
+    color: colors.text,
+  },
+  activeFilterText: {
+    color: colors.card,
+    fontWeight: '500',
+  },
+  filterButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: colors.card,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  clinicsList: {
+    paddingBottom: 20,
+  },
+  emptyContainer: {
+    padding: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyText: {
+    fontSize: 16,
+    color: colors.textSecondary,
+    textAlign: 'center',
+  },
+});

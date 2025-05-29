@@ -1,0 +1,463 @@
+import React, { useState } from 'react';
+import { 
+  View, 
+  Text, 
+  StyleSheet, 
+  ScrollView, 
+  TouchableOpacity,
+  Switch,
+  Image,
+  Alert,
+  Platform
+} from 'react-native';
+import { useRouter } from 'expo-router';
+import { 
+  User, 
+  Settings, 
+  Clock, 
+  Download, 
+  HelpCircle, 
+  LogOut,
+  ChevronRight,
+  Bell,
+  MapPin
+} from 'lucide-react-native';
+import * as ImagePicker from 'expo-image-picker';
+import { Button } from '@/components/Button';
+import { colors } from '@/constants/colors';
+import { useUserStore } from '@/store/user-store';
+
+export default function ProfileScreen() {
+  const router = useRouter();
+  const { user, setUser, isOfflineMode, toggleOfflineMode } = useUserStore();
+  const [image, setImage] = useState<string | undefined>(user?.profileImage);
+  
+  // List of Indian cities for location selection
+  const locations = [
+    'Bangalore', 
+    'Mumbai', 
+    'Delhi', 
+    'Chennai', 
+    'Kolkata', 
+    'Jaipur', 
+    'Hyderabad', 
+    'Pune', 
+    'Ahmedabad', 
+    'Kochi',
+    'Chandigarh',
+    'Lucknow',
+    'Bhopal',
+    'Indore',
+    'Surat',
+    'Coimbatore'
+  ];
+  
+  const pickImage = async () => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.5,
+      });
+      
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const newImage = result.assets[0].uri;
+        setImage(newImage);
+        
+        if (user) {
+          setUser({
+            ...user,
+            profileImage: newImage
+          });
+        } else {
+          // If no user exists yet, create one with mock data
+          setUser({
+            id: '1',
+            name: 'Rahul Sharma',
+            email: 'rahul.sharma@example.com',
+            phone: '+91 9876543210',
+            location: 'Bangalore',
+            profileImage: newImage,
+            medicalHistory: {
+              conditions: ['Hypertension'],
+              allergies: ['Penicillin'],
+              medications: ['Lisinopril']
+            }
+          });
+        }
+      }
+    } catch (error) {
+      console.log('Error picking image:', error);
+      Alert.alert('Error', 'Failed to pick image');
+    }
+  };
+  
+  const handleCreateAccount = () => {
+    // Create a mock user with Indian context
+    setUser({
+      id: '1',
+      name: 'Rahul Sharma',
+      email: 'rahul.sharma@example.com',
+      phone: '+91 9876543210',
+      location: 'Bangalore',
+      profileImage: undefined,
+      medicalHistory: {
+        conditions: ['Hypertension'],
+        allergies: ['Penicillin'],
+        medications: ['Lisinopril']
+      }
+    });
+  };
+  
+  const handleChangeLocation = () => {
+    if (!user) return;
+    
+    // Find the current location index
+    const currentIndex = locations.indexOf(user.location);
+    // Get the next location (or circle back to the first one)
+    const nextIndex = (currentIndex + 1) % locations.length;
+    const nextLocation = locations[nextIndex];
+    
+    setUser({
+      ...user,
+      location: nextLocation
+    });
+  };
+  
+  const handleLogout = () => {
+    Alert.alert(
+      'Logout',
+      'Are you sure you want to logout?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Logout',
+          onPress: () => setUser(null),
+          style: 'destructive',
+        },
+      ]
+    );
+  };
+  
+  const renderSettingsItem = (
+    icon: React.ReactNode,
+    title: string,
+    onPress: () => void,
+    rightElement?: React.ReactNode
+  ) => (
+    <TouchableOpacity 
+      style={styles.settingsItem}
+      onPress={onPress}
+    >
+      <View style={styles.settingsItemLeft}>
+        {icon}
+        <Text style={styles.settingsItemText}>{title}</Text>
+      </View>
+      {rightElement || <ChevronRight size={20} color={colors.textSecondary} />}
+    </TouchableOpacity>
+  );
+  
+  if (!user) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Profile</Text>
+        </View>
+        
+        <View style={styles.emptyStateContainer}>
+          <User size={64} color={colors.primary} />
+          <Text style={styles.emptyStateTitle}>Create an Account</Text>
+          <Text style={styles.emptyStateText}>
+            Sign up to access personalized healthcare services, track your consultations, and more.
+          </Text>
+          <Button 
+            title="Create Account" 
+            onPress={handleCreateAccount}
+            style={styles.createAccountButton}
+          />
+        </View>
+      </View>
+    );
+  }
+  
+  return (
+    <ScrollView 
+      style={styles.container}
+      contentContainerStyle={styles.contentContainer}
+      showsVerticalScrollIndicator={false}
+    >
+      <View style={styles.header}>
+        <Text style={styles.title}>Profile</Text>
+      </View>
+      
+      <View style={styles.profileCard}>
+        <TouchableOpacity 
+          style={styles.profileImageContainer}
+          onPress={pickImage}
+        >
+          {image ? (
+            <Image 
+              source={{ uri: image }} 
+              style={styles.profileImage} 
+            />
+          ) : (
+            <View style={styles.profileImagePlaceholder}>
+              <User size={40} color={colors.primary} />
+            </View>
+          )}
+          <View style={styles.editBadge}>
+            <Text style={styles.editText}>Edit</Text>
+          </View>
+        </TouchableOpacity>
+        
+        <View style={styles.profileInfo}>
+          <Text style={styles.profileName}>{user.name}</Text>
+          <Text style={styles.profileEmail}>{user.email}</Text>
+          <View style={styles.locationRow}>
+            <MapPin size={16} color={colors.secondary} />
+            <Text style={styles.profileLocation}>{user.location}</Text>
+            <TouchableOpacity onPress={handleChangeLocation}>
+              <Text style={styles.changeLocationText}>Change</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+      
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Account Settings</Text>
+        
+        {renderSettingsItem(
+          <User size={20} color={colors.primary} />,
+          'Personal Information',
+          () => Alert.alert('Personal Information', 'Edit your personal details')
+        )}
+        
+        {renderSettingsItem(
+          <Bell size={20} color={colors.primary} />,
+          'Notifications',
+          () => Alert.alert('Notifications', 'Manage your notification preferences')
+        )}
+        
+        {renderSettingsItem(
+          <Settings size={20} color={colors.primary} />,
+          'App Settings',
+          () => Alert.alert('App Settings', 'Customize your app experience')
+        )}
+        
+        {renderSettingsItem(
+          <Download size={20} color={colors.primary} />,
+          'Offline Mode',
+          () => {},
+          <Switch
+            value={isOfflineMode}
+            onValueChange={toggleOfflineMode}
+            trackColor={{ false: colors.border, true: colors.primary + '70' }}
+            thumbColor={isOfflineMode ? colors.primary : '#f4f3f4'}
+            ios_backgroundColor={colors.border}
+          />
+        )}
+      </View>
+      
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Medical Information</Text>
+        
+        {renderSettingsItem(
+          <Clock size={20} color={colors.primary} />,
+          'Medical History',
+          () => Alert.alert('Medical History', 'View and update your medical history')
+        )}
+        
+        {renderSettingsItem(
+          <Clock size={20} color={colors.primary} />,
+          'Allergies & Conditions',
+          () => Alert.alert('Allergies & Conditions', 'Manage your health conditions')
+        )}
+      </View>
+      
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Support</Text>
+        
+        {renderSettingsItem(
+          <HelpCircle size={20} color={colors.primary} />,
+          'Help & Support',
+          () => Alert.alert('Help & Support', 'Get help with using the app')
+        )}
+        
+        {renderSettingsItem(
+          <HelpCircle size={20} color={colors.primary} />,
+          'About MediConnect',
+          () => Alert.alert('About', 'MediConnect v1.0.0')
+        )}
+      </View>
+      
+      <TouchableOpacity 
+        style={styles.logoutButton}
+        onPress={handleLogout}
+      >
+        <LogOut size={20} color={colors.error} />
+        <Text style={styles.logoutText}>Logout</Text>
+      </TouchableOpacity>
+    </ScrollView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  contentContainer: {
+    padding: 16,
+    paddingBottom: 32,
+  },
+  header: {
+    marginBottom: 24,
+    marginTop: Platform.OS === 'ios' ? 8 : 0,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  profileCard: {
+    backgroundColor: colors.card,
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 24,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  profileImageContainer: {
+    position: 'relative',
+    marginBottom: 16,
+  },
+  profileImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+  },
+  profileImagePlaceholder: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: colors.primary + '20',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  editBadge: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    backgroundColor: colors.primary,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  editText: {
+    fontSize: 12,
+    color: colors.card,
+    fontWeight: '500',
+  },
+  profileInfo: {
+    alignItems: 'center',
+  },
+  profileName: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: colors.text,
+    marginBottom: 4,
+  },
+  profileEmail: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    marginBottom: 8,
+  },
+  locationRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  profileLocation: {
+    fontSize: 14,
+    color: colors.secondary,
+    marginLeft: 4,
+    marginRight: 8,
+  },
+  changeLocationText: {
+    fontSize: 14,
+    color: colors.primary,
+    fontWeight: '500',
+  },
+  section: {
+    marginBottom: 24,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: colors.text,
+    marginBottom: 12,
+  },
+  settingsItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: colors.card,
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    marginBottom: 8,
+  },
+  settingsItemLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  settingsItemText: {
+    fontSize: 16,
+    color: colors.text,
+    marginLeft: 12,
+  },
+  logoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.error + '10',
+    paddingVertical: 16,
+    borderRadius: 12,
+    marginTop: 8,
+  },
+  logoutText: {
+    fontSize: 16,
+    color: colors.error,
+    fontWeight: '500',
+    marginLeft: 8,
+  },
+  emptyStateContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  emptyStateTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: colors.text,
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  emptyStateText: {
+    fontSize: 16,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    marginBottom: 24,
+  },
+  createAccountButton: {
+    width: '100%',
+  },
+});

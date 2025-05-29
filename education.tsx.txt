@@ -1,0 +1,244 @@
+import React, { useState } from 'react';
+import { 
+  View, 
+  Text, 
+  StyleSheet, 
+  FlatList,
+  TouchableOpacity,
+  ScrollView
+} from 'react-native';
+import { useRouter } from 'expo-router';
+import { healthTips } from '@/mocks/health-tips';
+import { HealthTipCard } from '@/components/HealthTipCard';
+import { SearchBar } from '@/components/SearchBar';
+import { colors } from '@/constants/colors';
+
+export default function EducationScreen() {
+  const router = useRouter();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  
+  // Extract unique categories
+  const categories = Array.from(new Set(healthTips.map(tip => tip.category)));
+  
+  const filteredTips = healthTips.filter(tip => {
+    const matchesSearch = tip.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         tip.description.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = selectedCategory ? tip.category === selectedCategory : true;
+    
+    return matchesSearch && matchesCategory;
+  });
+  
+  // Group tips by category for the featured section
+  const tipsByCategory = categories.reduce((acc, category) => {
+    acc[category] = healthTips.filter(tip => tip.category === category).slice(0, 3);
+    return acc;
+  }, {} as Record<string, typeof healthTips>);
+  
+  const navigateToHealthTip = (tipId: string) => {
+    router.push(`/health-tip/${tipId}`);
+  };
+  
+  return (
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.title}>Health Education</Text>
+        <Text style={styles.subtitle}>
+          Learn about health, nutrition, and preventive care
+        </Text>
+      </View>
+      
+      <SearchBar 
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+        placeholder="Search health topics"
+      />
+      
+      <View style={styles.categoriesContainer}>
+        <ScrollView 
+          horizontal 
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.categories}
+        >
+          <TouchableOpacity 
+            style={[
+              styles.categoryChip,
+              selectedCategory === null && styles.activeCategoryChip
+            ]}
+            onPress={() => setSelectedCategory(null)}
+          >
+            <Text style={[
+              styles.categoryText,
+              selectedCategory === null && styles.activeCategoryText
+            ]}>
+              All
+            </Text>
+          </TouchableOpacity>
+          
+          {categories.map((category, index) => (
+            <TouchableOpacity 
+              key={index}
+              style={[
+                styles.categoryChip,
+                selectedCategory === category && styles.activeCategoryChip
+              ]}
+              onPress={() => setSelectedCategory(category)}
+            >
+              <Text style={[
+                styles.categoryText,
+                selectedCategory === category && styles.activeCategoryText
+              ]}>
+                {category}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </View>
+      
+      {searchQuery || selectedCategory ? (
+        <FlatList
+          data={filteredTips}
+          keyExtractor={(item) => item.id}
+          numColumns={2}
+          renderItem={({ item }) => (
+            <View style={styles.gridItem}>
+              <HealthTipCard 
+                tip={item} 
+                onPress={() => navigateToHealthTip(item.id)}
+              />
+            </View>
+          )}
+          contentContainerStyle={styles.gridContainer}
+          showsVerticalScrollIndicator={false}
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>
+                No health tips found matching your criteria
+              </Text>
+            </View>
+          }
+        />
+      ) : (
+        <ScrollView 
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.featuredContainer}
+        >
+          {categories.map((category, index) => (
+            <View key={index} style={styles.categorySection}>
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>{category}</Text>
+                <TouchableOpacity onPress={() => setSelectedCategory(category)}>
+                  <Text style={styles.seeAllText}>See All</Text>
+                </TouchableOpacity>
+              </View>
+              
+              <ScrollView 
+                horizontal 
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.tipsRow}
+              >
+                {tipsByCategory[category].map(tip => (
+                  <HealthTipCard 
+                    key={tip.id} 
+                    tip={tip} 
+                    onPress={() => navigateToHealthTip(tip.id)}
+                  />
+                ))}
+              </ScrollView>
+            </View>
+          ))}
+        </ScrollView>
+      )}
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.background,
+    padding: 16,
+  },
+  header: {
+    marginBottom: 16,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: colors.text,
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: colors.textSecondary,
+  },
+  categoriesContainer: {
+    marginBottom: 16,
+  },
+  categories: {
+    paddingRight: 8,
+  },
+  categoryChip: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: colors.card,
+    marginRight: 8,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  activeCategoryChip: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  categoryText: {
+    fontSize: 14,
+    color: colors.text,
+  },
+  activeCategoryText: {
+    color: colors.card,
+    fontWeight: '500',
+  },
+  gridContainer: {
+    paddingBottom: 20,
+  },
+  gridItem: {
+    flex: 1,
+    margin: 6,
+    height: 150,
+  },
+  emptyContainer: {
+    padding: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyText: {
+    fontSize: 16,
+    color: colors.textSecondary,
+    textAlign: 'center',
+  },
+  featuredContainer: {
+    paddingBottom: 20,
+  },
+  categorySection: {
+    marginBottom: 24,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  seeAllText: {
+    fontSize: 14,
+    color: colors.primary,
+  },
+  tipsRow: {
+    paddingRight: 8,
+  },
+});
