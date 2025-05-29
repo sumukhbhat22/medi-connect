@@ -1,0 +1,228 @@
+import React from 'react';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { AlertCircle, ArrowRight } from 'lucide-react-native';
+import { Symptom } from '@/types';
+import { Button } from '../Button';
+import { colors } from '@/constants/colors';
+
+interface SymptomResultsProps {
+  selectedSymptoms: Symptom[];
+  onFindDoctor: () => void;
+}
+
+export const SymptomResults = ({ 
+  selectedSymptoms,
+  onFindDoctor
+}: SymptomResultsProps) => {
+  // Mock results based on symptoms
+  const getPossibleConditions = () => {
+    const hasHeadache = selectedSymptoms.some(s => s.name.toLowerCase() === 'headache');
+    const hasFever = selectedSymptoms.some(s => s.name.toLowerCase() === 'fever');
+    const hasCough = selectedSymptoms.some(s => s.name.toLowerCase() === 'cough');
+    const hasSoreThroat = selectedSymptoms.some(s => s.name.toLowerCase() === 'sore throat');
+    
+    if (hasFever && hasCough && hasSoreThroat) {
+      return [
+        { name: 'Common Cold', urgency: 'Low', description: 'Rest and fluids recommended' },
+        { name: 'Flu', urgency: 'Medium', description: 'Consider antiviral medication' },
+        { name: 'COVID-19', urgency: 'Medium', description: 'Testing recommended' }
+      ];
+    } else if (hasHeadache && hasFever) {
+      return [
+        { name: 'Migraine', urgency: 'Low', description: 'Rest in a dark room' },
+        { name: 'Sinus Infection', urgency: 'Low', description: 'May need antibiotics' },
+        { name: 'Malaria', urgency: 'High', description: 'Seek medical attention' }
+      ];
+    } else if (hasHeadache) {
+      return [
+        { name: 'Tension Headache', urgency: 'Low', description: 'Rest and over-the-counter pain relief' },
+        { name: 'Migraine', urgency: 'Low', description: 'Rest in a dark room' },
+        { name: 'Dehydration', urgency: 'Low', description: 'Drink fluids' }
+      ];
+    } else if (hasFever) {
+      return [
+        { name: 'Viral Infection', urgency: 'Medium', description: 'Rest and monitor symptoms' },
+        { name: 'Bacterial Infection', urgency: 'Medium', description: 'May need antibiotics' },
+        { name: 'Malaria', urgency: 'High', description: 'Seek medical attention if in endemic area' }
+      ];
+    }
+    
+    return [
+      { name: 'Multiple possibilities', urgency: 'Medium', description: 'Consult with a healthcare provider for accurate diagnosis' }
+    ];
+  };
+  
+  const conditions = getPossibleConditions();
+  
+  const getUrgencyColor = (urgency: string) => {
+    switch (urgency) {
+      case 'Low':
+        return colors.success;
+      case 'Medium':
+        return colors.warning;
+      case 'High':
+        return colors.error;
+      default:
+        return colors.textSecondary;
+    }
+  };
+  
+  return (
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <AlertCircle size={24} color={colors.primary} />
+        <Text style={styles.title}>Symptom Analysis</Text>
+      </View>
+      
+      <Text style={styles.disclaimer}>
+        This is not a medical diagnosis. Always consult with a healthcare professional.
+      </Text>
+      
+      <Text style={styles.sectionTitle}>Your symptoms:</Text>
+      <View style={styles.symptomsContainer}>
+        {selectedSymptoms.map((symptom, index) => (
+          <View key={symptom.id} style={styles.symptomTag}>
+            <Text style={styles.symptomText}>{symptom.name}</Text>
+          </View>
+        ))}
+      </View>
+      
+      <Text style={styles.sectionTitle}>Possible conditions:</Text>
+      <ScrollView style={styles.conditionsContainer}>
+        {conditions.map((condition, index) => (
+          <View key={index} style={styles.conditionCard}>
+            <View style={styles.conditionHeader}>
+              <Text style={styles.conditionName}>{condition.name}</Text>
+              <View style={[
+                styles.urgencyTag, 
+                { backgroundColor: getUrgencyColor(condition.urgency) + '20' }
+              ]}>
+                <Text style={[
+                  styles.urgencyText, 
+                  { color: getUrgencyColor(condition.urgency) }
+                ]}>
+                  {condition.urgency} Urgency
+                </Text>
+              </View>
+            </View>
+            <Text style={styles.conditionDescription}>{condition.description}</Text>
+          </View>
+        ))}
+      </ScrollView>
+      
+      <View style={styles.actionsContainer}>
+        <Text style={styles.actionText}>
+          For an accurate diagnosis, consult with a healthcare professional
+        </Text>
+        <Button 
+          title="Find a Doctor" 
+          onPress={onFindDoctor}
+          fullWidth
+          style={styles.button}
+        />
+      </View>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: colors.text,
+    marginLeft: 8,
+  },
+  disclaimer: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    fontStyle: 'italic',
+    marginBottom: 16,
+    padding: 12,
+    backgroundColor: colors.info + '10',
+    borderRadius: 8,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.text,
+    marginBottom: 8,
+    marginTop: 16,
+  },
+  symptomsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginBottom: 8,
+  },
+  symptomTag: {
+    backgroundColor: colors.primary + '20',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    marginRight: 8,
+    marginBottom: 8,
+  },
+  symptomText: {
+    fontSize: 14,
+    color: colors.primary,
+  },
+  conditionsContainer: {
+    flex: 1,
+    marginBottom: 16,
+  },
+  conditionCard: {
+    backgroundColor: colors.card,
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  conditionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  conditionName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  urgencyTag: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 16,
+  },
+  urgencyText: {
+    fontSize: 12,
+    fontWeight: '500',
+  },
+  conditionDescription: {
+    fontSize: 14,
+    color: colors.textSecondary,
+  },
+  actionsContainer: {
+    marginTop: 8,
+    marginBottom: 16,
+  },
+  actionText: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    marginBottom: 12,
+  },
+  button: {
+    marginTop: 8,
+  },
+});

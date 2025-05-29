@@ -1,0 +1,63 @@
+import React from 'react';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { Check } from 'lucide-react-native';
+import { Symptom } from '@/types';
+import { colors } from '@/constants/colors';
+
+interface SymptomItemProps {
+  symptom: Symptom;
+  selected: boolean;
+  onToggle: (symptom: Symptom) => void;
+}
+
+export const SymptomItem = ({ symptom, selected, onToggle }: SymptomItemProps) => {
+  return (
+    <Pressable
+      style={({ pressed }) => [
+        styles.container,
+        selected && styles.selected,
+        pressed && styles.pressed
+      ]}
+      onPress={() => onToggle(symptom)}
+    >
+      <Text style={[styles.text, selected && styles.selectedText]}>
+        {symptom.name}
+      </Text>
+      {selected && (
+        <Check size={16} color={colors.card} />
+      )}
+    </Pressable>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    backgroundColor: colors.card,
+    marginRight: 8,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  selected: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  pressed: {
+    opacity: 0.8,
+  },
+  text: {
+    fontSize: 14,
+    color: colors.text,
+    marginRight: 8,
+  },
+  selectedText: {
+    color: colors.card,
+    fontWeight: '500',
+  },
+});
