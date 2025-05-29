@@ -1,0 +1,125 @@
+import React from 'react';
+import { View, Text, StyleSheet, Pressable, Image } from 'react-native';
+import { Star, MapPin } from 'lucide-react-native';
+import { Doctor } from '@/types';
+import { colors } from '@/constants/colors';
+
+interface DoctorCardProps {
+  doctor: Doctor;
+  onPress: (doctor: Doctor) => void;
+}
+
+export const DoctorCard = ({ doctor, onPress }: DoctorCardProps) => {
+  return (
+    <Pressable 
+      style={({ pressed }) => [
+        styles.container,
+        pressed && styles.pressed
+      ]}
+      onPress={() => onPress(doctor)}
+    >
+      <Image 
+        source={{ uri: doctor.imageUrl }} 
+        style={styles.image} 
+      />
+      <View style={styles.content}>
+        <Text style={styles.name}>{doctor.name}</Text>
+        <Text style={styles.specialty}>{doctor.specialty}</Text>
+        <View style={styles.ratingContainer}>
+          <Star size={16} color={colors.warning} fill={colors.warning} />
+          <Text style={styles.rating}>{doctor.rating}</Text>
+        </View>
+        <View style={styles.locationContainer}>
+          <MapPin size={14} color={colors.textSecondary} />
+          <Text style={styles.location}>{doctor.location}</Text>
+        </View>
+        <Text style={styles.availability}>{doctor.availability}</Text>
+        <View style={styles.footer}>
+          <Text style={styles.price}>₹{doctor.price}</Text>
+          <Text style={styles.languages}>
+            {doctor.languages.slice(0, 2).join(', ')}
+            {doctor.languages.length > 2 ? '...' : ''}
+          </Text>
+        </View>
+      </View>
+    </Pressable>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    backgroundColor: colors.card,
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  pressed: {
+    opacity: 0.9,
+    backgroundColor: '#F5F5F5',
+  },
+  image: {
+    width: 80,
+    height: 80,
+    borderRadius: 8,
+  },
+  content: {
+    flex: 1,
+    marginLeft: 12,
+    justifyContent: 'space-between',
+  },
+  name: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  specialty: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    marginBottom: 4,
+  },
+  ratingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  rating: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    marginLeft: 4,
+  },
+  locationContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  location: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    marginLeft: 4,
+  },
+  availability: {
+    fontSize: 14,
+    color: colors.success,
+    marginBottom: 4,
+  },
+  footer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  price: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.primary,
+  },
+  languages: {
+    fontSize: 12,
+    color: colors.textSecondary,
+  },
+});

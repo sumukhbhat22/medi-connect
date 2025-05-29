@@ -1,0 +1,139 @@
+import React from 'react';
+import { View, Text, StyleSheet, Pressable, Image } from 'react-native';
+import { MapPin, Clock } from 'lucide-react-native';
+import { Clinic } from '@/types';
+import { colors } from '@/constants/colors';
+
+interface ClinicCardProps {
+  clinic: Clinic;
+  onPress: (clinic: Clinic) => void;
+}
+
+export const ClinicCard = ({ clinic, onPress }: ClinicCardProps) => {
+  return (
+    <Pressable 
+      style={({ pressed }) => [
+        styles.container,
+        pressed && styles.pressed
+      ]}
+      onPress={() => onPress(clinic)}
+    >
+      <Image 
+        source={{ uri: clinic.imageUrl }} 
+        style={styles.image} 
+      />
+      <View style={styles.content}>
+        <Text style={styles.name}>{clinic.name}</Text>
+        
+        <View style={styles.infoRow}>
+          <MapPin size={16} color={colors.textSecondary} />
+          <Text style={styles.infoText} numberOfLines={1}>
+            {clinic.address}
+          </Text>
+        </View>
+        
+        <View style={styles.locationContainer}>
+          <Text style={styles.location}>{clinic.location}</Text>
+          <Text style={styles.distance}>{clinic.distance}</Text>
+        </View>
+        
+        <View style={styles.infoRow}>
+          <Clock size={16} color={colors.textSecondary} />
+          <Text style={styles.infoText}>{clinic.openHours}</Text>
+        </View>
+        
+        <View style={styles.servicesContainer}>
+          {clinic.services.slice(0, 2).map((service, index) => (
+            <View key={index} style={styles.serviceTag}>
+              <Text style={styles.serviceText}>{service}</Text>
+            </View>
+          ))}
+          {clinic.services.length > 2 && (
+            <Text style={styles.moreServices}>+{clinic.services.length - 2}</Text>
+          )}
+        </View>
+      </View>
+    </Pressable>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: colors.card,
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  pressed: {
+    opacity: 0.9,
+    backgroundColor: '#F5F5F5',
+  },
+  image: {
+    width: '100%',
+    height: 120,
+    borderRadius: 8,
+    marginBottom: 12,
+  },
+  content: {
+    flex: 1,
+  },
+  name: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.text,
+    marginBottom: 8,
+  },
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  infoText: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    marginLeft: 6,
+    flex: 1,
+  },
+  locationContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  location: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: colors.secondary,
+  },
+  distance: {
+    fontSize: 14,
+    color: colors.primary,
+  },
+  servicesContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginTop: 8,
+  },
+  serviceTag: {
+    backgroundColor: colors.primary + '20',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 16,
+    marginRight: 8,
+    marginBottom: 4,
+  },
+  serviceText: {
+    fontSize: 12,
+    color: colors.primary,
+  },
+  moreServices: {
+    fontSize: 12,
+    color: colors.textSecondary,
+    alignSelf: 'center',
+  },
+});

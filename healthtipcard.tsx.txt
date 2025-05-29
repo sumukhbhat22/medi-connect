@@ -1,0 +1,78 @@
+import React from 'react';
+import { View, Text, StyleSheet, Pressable, Image } from 'react-native';
+import { HealthTip } from '@/types';
+import { colors } from '@/constants/colors';
+
+interface HealthTipCardProps {
+  tip: HealthTip;
+  onPress: (tip: HealthTip) => void;
+}
+
+export const HealthTipCard = ({ tip, onPress }: HealthTipCardProps) => {
+  return (
+    <Pressable 
+      style={({ pressed }) => [
+        styles.container,
+        pressed && styles.pressed
+      ]}
+      onPress={() => onPress(tip)}
+    >
+      <Image 
+        source={{ uri: tip.imageUrl }} 
+        style={styles.image} 
+      />
+      <View style={styles.overlay}>
+        <View style={styles.categoryContainer}>
+          <Text style={styles.category}>{tip.category}</Text>
+        </View>
+        <Text style={styles.title}>{tip.title}</Text>
+      </View>
+    </Pressable>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    width: 200,
+    height: 150,
+    borderRadius: 12,
+    marginRight: 12,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  pressed: {
+    opacity: 0.9,
+  },
+  image: {
+    width: '100%',
+    height: '100%',
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    justifyContent: 'flex-end',
+    padding: 12,
+  },
+  categoryContainer: {
+    backgroundColor: colors.primary,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 16,
+    alignSelf: 'flex-start',
+    marginBottom: 8,
+  },
+  category: {
+    fontSize: 12,
+    color: colors.card,
+    fontWeight: '500',
+  },
+  title: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.card,
+  },
+});

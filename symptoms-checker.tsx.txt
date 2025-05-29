@@ -1,0 +1,108 @@
+import React, { useState } from 'react';
+import { 
+  View, 
+  StyleSheet, 
+  SafeAreaView, 
+  Platform
+} from 'react-native';
+import { useRouter, Stack } from 'expo-router';
+import { symptoms } from '@/mocks/symptoms';
+import { Symptom } from '@/types';
+import { SymptomsList } from '@/components/SymptomChecker/SymptomsList';
+import { SymptomResults } from '@/components/SymptomChecker/SymptomResults';
+import { Button } from '@/components/Button';
+import { colors } from '@/constants/colors';
+
+export default function SymptomCheckerScreen() {
+  const router = useRouter();
+  const [selectedSymptoms, setSelectedSymptoms] = useState<Symptom[]>([]);
+  const [showResults, setShowResults] = useState(false);
+  
+  const toggleSymptom = (symptom: Symptom) => {
+    if (selectedSymptoms.some(s => s.id === symptom.id)) {
+      setSelectedSymptoms(selectedSymptoms.filter(s => s.id !== symptom.id));
+    } else {
+      setSelectedSymptoms([...selectedSymptoms, symptom]);
+    }
+  };
+  
+  const handleAnalyze = () => {
+    setShowResults(true);
+  };
+  
+  const handleReset = () => {
+    setSelectedSymptoms([]);
+    setShowResults(false);
+  };
+  
+  const handleFindDoctor = () => {
+    router.push('/consultations');
+  };
+  
+  return (
+    <SafeAreaView style={styles.safeArea}>
+      <Stack.Screen 
+        options={{
+          title: 'Symptom Checker',
+          headerTitleStyle: {
+            fontWeight: '600',
+          },
+        }} 
+      />
+      
+      <View style={styles.container}>
+        {!showResults ? (
+          <>
+            <SymptomsList 
+              symptoms={symptoms}
+              selectedSymptoms={selectedSymptoms}
+              onToggleSymptom={toggleSymptom}
+            />
+            
+            <View style={styles.footer}>
+              <Button 
+                title="Analyze Symptoms" 
+                onPress={handleAnalyze}
+                disabled={selectedSymptoms.length === 0}
+                fullWidth
+              />
+            </View>
+          </>
+        ) : (
+          <>
+            <SymptomResults 
+              selectedSymptoms={selectedSymptoms}
+              onFindDoctor={handleFindDoctor}
+            />
+            
+            <View style={styles.footer}>
+              <Button 
+                title="Check Different Symptoms" 
+                onPress={handleReset}
+                variant="outline"
+                fullWidth
+              />
+            </View>
+          </>
+        )}
+      </View>
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: colors.background,
+    paddingTop: Platform.OS === 'android' ? 25 : 0,
+  },
+  container: {
+    flex: 1,
+    padding: 16,
+  },
+  footer: {
+    paddingVertical: 16,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+});

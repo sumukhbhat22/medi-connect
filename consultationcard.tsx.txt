@@ -1,0 +1,152 @@
+import React from 'react';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { Video, Phone, MessageSquare, Calendar, Clock } from 'lucide-react-native';
+import { Consultation } from '@/types';
+import { colors } from '@/constants/colors';
+
+interface ConsultationCardProps {
+  consultation: Consultation;
+  onPress: (consultation: Consultation) => void;
+}
+
+export const ConsultationCard = ({ consultation, onPress }: ConsultationCardProps) => {
+  const getStatusColor = () => {
+    switch (consultation.status) {
+      case 'scheduled':
+        return colors.primary;
+      case 'completed':
+        return colors.success;
+      case 'cancelled':
+        return colors.error;
+      default:
+        return colors.textSecondary;
+    }
+  };
+
+  const getConsultationIcon = () => {
+    switch (consultation.type) {
+      case 'video':
+        return <Video size={20} color={colors.primary} />;
+      case 'voice':
+        return <Phone size={20} color={colors.primary} />;
+      case 'text':
+        return <MessageSquare size={20} color={colors.primary} />;
+      default:
+        return <Video size={20} color={colors.primary} />;
+    }
+  };
+
+  return (
+    <Pressable 
+      style={({ pressed }) => [
+        styles.container,
+        pressed && styles.pressed,
+        consultation.status === 'cancelled' && styles.cancelled
+      ]}
+      onPress={() => onPress(consultation)}
+    >
+      <View style={styles.header}>
+        <View style={styles.typeContainer}>
+          {getConsultationIcon()}
+          <Text style={styles.type}>
+            {consultation.type.charAt(0).toUpperCase() + consultation.type.slice(1)} Consultation
+          </Text>
+        </View>
+        <View style={[styles.statusContainer, { backgroundColor: getStatusColor() + '20' }]}>
+          <Text style={[styles.status, { color: getStatusColor() }]}>
+            {consultation.status.charAt(0).toUpperCase() + consultation.status.slice(1)}
+          </Text>
+        </View>
+      </View>
+
+      <View style={styles.content}>
+        <Text style={styles.doctorName}>{consultation.doctorName}</Text>
+        <Text style={styles.specialty}>{consultation.specialty}</Text>
+        
+        <View style={styles.timeContainer}>
+          <View style={styles.timeItem}>
+            <Calendar size={16} color={colors.textSecondary} />
+            <Text style={styles.timeText}>{consultation.date}</Text>
+          </View>
+          <View style={styles.timeItem}>
+            <Clock size={16} color={colors.textSecondary} />
+            <Text style={styles.timeText}>{consultation.time}</Text>
+          </View>
+        </View>
+      </View>
+    </Pressable>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: colors.card,
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  pressed: {
+    opacity: 0.9,
+    backgroundColor: '#F5F5F5',
+  },
+  cancelled: {
+    opacity: 0.7,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  typeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  type: {
+    fontSize: 14,
+    color: colors.primary,
+    marginLeft: 6,
+    fontWeight: '500',
+  },
+  statusContainer: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 16,
+  },
+  status: {
+    fontSize: 12,
+    fontWeight: '500',
+  },
+  content: {
+    flex: 1,
+  },
+  doctorName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.text,
+    marginBottom: 4,
+  },
+  specialty: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    marginBottom: 12,
+  },
+  timeContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  timeItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  timeText: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    marginLeft: 6,
+  },
+});
